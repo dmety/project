@@ -8,13 +8,14 @@
       
       <div class="flex-1 overflow-y-auto p-4 space-y-4" ref="chatContainer">
         <div v-for="(msg, index) in messages" :key="index"
-             :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start'">
+             :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start']">
           <div :class="['max-w-[80%] rounded-lg p-3',
-                       msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-white border border-gray-200'">
+                       msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-white border border-gray-200']">
             <div v-if="msg.role === 'assistant'" class="prose prose-sm max-w-none">
               <div v-html="renderMarkdown(msg.content)"></div>
             </div>
             <div v-else>{{ msg.content }}</div>
+          </div>
         </div>
         
         <div v-if="isLoading" class="flex justify-start">
@@ -110,7 +111,7 @@ const renderMarkdown = (content: string) => {
 }
 
 const sendMessage = async () => {
-  if (!inputMessage.value.trim() || isLoading.value || !userStore.userInfo?.userId) return
+  if (!inputMessage.value.trim() || isLoading.value || !userStore.userId) return
   
   const message = inputMessage.value
   messages.value.push({
@@ -125,15 +126,16 @@ const sendMessage = async () => {
   
   try {
     const res = await tutorApi.dialog({
-      userId: userStore.userInfo.userId,
+      userId: userStore.userId,
       question: message,
       conversationId: conversationId.value
     })
     
-    conversationId.value = res.data.conversationId
+    const data = res.data as any
+    conversationId.value = data.conversationId
     messages.value.push({
       role: 'assistant',
-      content: res.data.answer
+      content: data.answer
     })
   } catch (error) {
     console.error('发送消息失败:', error)
@@ -149,21 +151,22 @@ const sendMessage = async () => {
 }
 
 const runCode = async () => {
-  if (!userStore.userInfo?.userId || isRunning.value) return
+  if (!userStore.userId || isRunning.value) return
   
   isRunning.value = true
   codeOutput.value = '正在运行...'
   
   try {
     const res = await tutorApi.runCode({
-      userId: userStore.userInfo.userId,
+      userId: userStore.userId,
       codeContent: codeContent.value
     })
     
-    if (res.data.success) {
-      codeOutput.value = res.data.output || '执行成功，无输出'
+    const data = res.data as any
+    if (data.success) {
+      codeOutput.value = data.output || '执行成功，无输出'
     } else {
-      codeOutput.value = res.data.errors || '执行失败'
+      codeOutput.value = data.errors || '执行失败'
     }
   } catch (error) {
     console.error('运行代码失败:', error)

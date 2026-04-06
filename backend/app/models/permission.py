@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, BigInteger, DateTime, TinyInt
+from sqlalchemy import Column, Integer, String, Text, BigInteger, DateTime
+from sqlalchemy.dialects.mysql import TINYINT
 from sqlalchemy.sql import func
-from app.database.database import Base
+from app.core.database import Base
 
 
 class SysRole(Base):
@@ -12,7 +13,7 @@ class SysRole(Base):
     role_type = Column(String(20), nullable=False, default="custom")
     role_desc = Column(String(255))
     sort_order = Column(Integer, default=0)
-    status = Column(TinyInt, default=1, index=True)
+    status = Column(TINYINT, default=1, index=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
@@ -29,7 +30,7 @@ class SysPermission(Base):
     component_path = Column(String(200))
     icon = Column(String(50))
     sort_order = Column(Integer, default=0)
-    status = Column(TinyInt, default=1)
+    status = Column(TINYINT, default=1)
     created_at = Column(DateTime, server_default=func.now())
 
 
@@ -66,5 +67,5 @@ class SysOperationLog(Base):
     operation_ip = Column(String(50))
     operation_time = Column(DateTime, server_default=func.now(), index=True)
     duration = Column(Integer)
-    status = Column(TinyInt, default=1)
+    status = Column(TINYINT, default=1)
     error_msg = Column(Text)

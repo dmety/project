@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { LoginResponse } from '@/types'
+
+const TOKEN_KEY = 'token'
+const USER_KEY = 'user'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref<string>('')
@@ -9,12 +12,50 @@ export const useUserStore = defineStore('user', () => {
   const roles = ref<string[]>([])
   const permissions = ref<string[]>([])
 
+  const initFromStorage = () => {
+    const savedToken = localStorage.getItem(TOKEN_KEY)
+    const savedUser = localStorage.getItem(USER_KEY)
+    if (savedToken) {
+      token.value = savedToken
+    }
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser)
+        userId.value = userData.userId || 0
+        username.value = userData.username || ''
+        roles.value = userData.roles || []
+        permissions.value = userData.permissions || []
+      } catch {
+        console.error('Failed to parse user data from localStorage')
+      }
+    }
+  }
+
   const setAuthData = (data: LoginResponse) => {
     token.value = data.token
     userId.value = data.user_id
     username.value = data.username
     roles.value = data.roles
     permissions.value = data.permissions
+  }
+
+  const saveToStorage = () => {
+    if (token.value) {
+      localStorage.setItem(TOKEN_KEY, token.value)
+    } else {
+      localStorage.removeItem(TOKEN_KEY)
+    }
+    const userData = {
+      userId: userId.value,
+      username: username.value,
+      roles: roles.value,
+      permissions: permissions.value
+    }
+    if (userId.value) {
+      localStorage.setItem(USER_KEY, JSON.stringify(userData))
+    } else {
+      localStorage.removeItem(USER_KEY)
+    }
   }
 
   const hasRole = (roleCode: string): boolean => {
@@ -45,6 +86,9 @@ export const useUserStore = defineStore('user', () => {
     roles.value = []
     permissions.value = []
   }
+
+  initFromStorage()
+  watch([token, userId, username, roles, permissions], saveToStorage)
 
   return {
     token,

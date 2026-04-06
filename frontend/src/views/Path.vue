@@ -214,19 +214,20 @@ const markComplete = async (node: any) => {
 }
 
 const generatePath = async () => {
-  if (!userStore.userInfo?.userId || !newPathConfig.value.pathName) return
+  if (!userStore.userId || !newPathConfig.value.pathName) return
   
   isGenerating.value = true
   
   try {
     const res = await pathApi.generate({
-      userId: userStore.userInfo.userId,
+      userId: userStore.userId,
       pathName: newPathConfig.value.pathName,
       startKnowledgeId: newPathConfig.value.startKnowledgeId
     })
     
-    paths.value.unshift(res.data)
-    selectedPath.value = res.data
+    const data = res.data as any
+    paths.value.unshift(data)
+    selectedPath.value = data
     showGenerateModal.value = false
     newPathConfig.value.pathName = ''
   } catch (error) {
@@ -237,11 +238,12 @@ const generatePath = async () => {
 }
 
 const loadPaths = async () => {
-  if (!userStore.userInfo?.userId) return
+  if (!userStore.userId) return
   
   try {
-    const res = await pathApi.list(userStore.userInfo.userId)
-    paths.value = res.data || []
+    const res = await pathApi.list(userStore.userId)
+    const data = res.data as any
+    paths.value = data || []
     if (paths.value.length > 0) {
       selectedPath.value = paths.value[0]
     }
@@ -251,13 +253,14 @@ const loadPaths = async () => {
 }
 
 const loadPushedResources = async () => {
-  if (!userStore.userInfo?.userId) return
+  if (!userStore.userId) return
   
   try {
     const res = await pathApi.push({
-      userId: userStore.userInfo.userId
+      userId: userStore.userId
     })
-    pushedResources.value = res.data || []
+    const data = res.data as any
+    pushedResources.value = data || []
   } catch (error) {
     console.error('加载推送资源失败:', error)
   }

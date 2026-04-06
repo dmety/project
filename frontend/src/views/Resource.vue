@@ -151,7 +151,7 @@ const formatDate = (dateStr: string) => {
 }
 
 const generateResource = async () => {
-  if (!userStore.userInfo?.userId) return
+  if (!userStore.userId) return
   
   isGenerating.value = true
   generateProgress.value = 0
@@ -162,7 +162,7 @@ const generateResource = async () => {
     }, 500)
     
     const res = await resourceApi.generate({
-      userId: userStore.userInfo.userId,
+      userId: userStore.userId,
       knowledgeId: generateConfig.value.knowledgeId,
       resourceType: generateConfig.value.resourceType,
       difficulty: generateConfig.value.difficulty
@@ -171,7 +171,8 @@ const generateResource = async () => {
     clearInterval(progressInterval)
     generateProgress.value = 100
     
-    resources.value.unshift(res.data)
+    const data = res.data as any
+    resources.value.unshift(data)
     
     setTimeout(() => {
       isGenerating.value = false
@@ -185,14 +186,15 @@ const generateResource = async () => {
 }
 
 const loadResources = async () => {
-  if (!userStore.userInfo?.userId) return
+  if (!userStore.userId) return
   
   try {
     const res = await resourceApi.list({
-      userId: userStore.userInfo.userId,
+      userId: userStore.userId,
       resourceType: filterConfig.value.resourceType || undefined
     })
-    resources.value = res.data.resources || []
+    const data = res.data as any
+    resources.value = data.resources || []
   } catch (error) {
     console.error('加载资源列表失败:', error)
   }

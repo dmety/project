@@ -65,15 +65,15 @@ const handleLogin = async () => {
   error.value = ''
   
   try {
-    const res = await authApi.login(form)
-    if (res.data.code === 200) {
-      userStore.setAuthData(res.data.data)
+    const res = await authApi.login(form) as any
+    if (res.code === 200) {
+      userStore.setAuthData(res.data)
       router.push('/')
     } else {
-      error.value = res.data.message || '登录失败'
+      error.value = res.message || '登录失败'
     }
   } catch (err: any) {
-    error.value = err.response?.data?.message || '登录失败，请稍后重试'
+    error.value = err.message || '登录失败，请稍后重试'
   } finally {
     loading.value = false
   }

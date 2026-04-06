@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     MYSQL_HOST: str = "localhost"
     MYSQL_PORT: int = 3306
     MYSQL_USER: str = "root"
-    MYSQL_PASSWORD: str = "root123456"
+    MYSQL_PASSWORD: str = "248650"
     MYSQL_DATABASE: str = "learning_system"
 
     MILVUS_HOST: str = "localhost"

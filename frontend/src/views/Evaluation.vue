@@ -218,16 +218,17 @@ const formatDate = (dateStr: string) => {
 }
 
 const generateEvaluation = async () => {
-  if (!userStore.userInfo?.userId) return
+  if (!userStore.userId) return
   
   isGenerating.value = true
   
   try {
     const res = await evaluationApi.generate({
-      userId: userStore.userInfo.userId,
+      userId: userStore.userId,
       evaluationPeriod: '2026年第14周'
     })
-    recentEvaluations.value.unshift(res.data)
+    const data = res.data as any
+    recentEvaluations.value.unshift(data)
   } catch (error) {
     console.error('生成评估报告失败:', error)
   } finally {
@@ -236,12 +237,13 @@ const generateEvaluation = async () => {
 }
 
 const loadDashboard = async () => {
-  if (!userStore.userInfo?.userId) return
+  if (!userStore.userId) return
   
   try {
-    const res = await evaluationApi.dashboard(userStore.userInfo.userId)
-    recentEvaluations.value = res.data.recentEvaluations || []
-    knowledgeGaps.value = res.data.knowledgeGaps || []
+    const res = await evaluationApi.dashboard(userStore.userId)
+    const data = res.data as any
+    recentEvaluations.value = data.recentEvaluations || []
+    knowledgeGaps.value = data.knowledgeGaps || []
   } catch (error) {
     console.error('加载看板数据失败:', error)
   }

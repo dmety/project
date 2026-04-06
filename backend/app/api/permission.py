@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from sqlalchemy import and_
 
-from app.database.database import get_db
+from app.core.database import get_db
 from app.models import (
     SysRole, SysPermission, SysUserRole, SysRolePermission, SysOperationLog, UserInfo
 )
@@ -18,26 +18,25 @@ from app.schemas.permission import (
     OperationLog, OperationLogCreate,
     LoginRequest, LoginResponse
 )
-from app.config.config import settings
+from app.core.config import settings
+from app.core.response import success_response, ApiResponse
 
-router = APIRouter(prefix="/api/v1/permission", tags=["权限管理"])
+router = APIRouter(prefix="/v1/permission", tags=["权限管理"])
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
 
-@router.post("/login", response_model=LoginResponse)
+@router.post("/login", response_model=ApiResponse[LoginResponse])
 def login(request: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(UserInfo).filter(UserInfo.username == request.username).first()
     if not user or not verify_password(request.password, user.password_hash):
@@ -72,19 +71,21 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     ).all()
     permission_codes = [perm.permission_code for perm in permissions]
     
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": str(user.user_id), "username": user.username},
         expires_delta=access_token_expires
     )
     
-    return LoginResponse(
+    login_data = LoginResponse(
         token=access_token,
         user_id=user.user_id,
         username=user.username,
         roles=role_codes,
         permissions=permission_codes
     )
+    
+    return success_response(data=login_data, message="登录成功")
 
 @router.get("/roles", response_model=List[Role])
 def get_roles(

@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { useUserStore } from '@/store/user'
+
+const TOKEN_KEY = 'token'
 
 const service: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
@@ -8,9 +9,9 @@ const service: AxiosInstance = axios.create({
 
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const userStore = useUserStore()
-    if (userStore.token && config.headers) {
-      config.headers['Authorization'] = `Bearer ${userStore.token}`
+    const token = localStorage.getItem(TOKEN_KEY)
+    if (token && config.headers) {
+      config.headers['Authorization'] = `Bearer ${token}`
     }
     return config
   },

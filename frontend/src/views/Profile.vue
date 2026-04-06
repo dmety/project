@@ -266,18 +266,18 @@ const renderMarkdown = (content: string) => {
 }
 
 const loadProfileData = async () => {
-  if (!userStore.userInfo?.userId) return
+  if (!userStore.userId) return
   
   try {
-    const res = await profileApi.getVisualization(userStore.userInfo.userId)
-    profileData.value = res.data
+    const res = await profileApi.getVisualization(userStore.userId)
+    profileData.value = res.data as any
   } catch (error) {
     console.error('加载画像数据失败:', error)
   }
 }
 
 const sendMessage = async () => {
-  if (!inputMessage.value.trim() || isLoading.value || !userStore.userInfo?.userId) return
+  if (!inputMessage.value.trim() || isLoading.value || !userStore.userId) return
   
   const message = inputMessage.value
   messages.value.push({
@@ -292,15 +292,16 @@ const sendMessage = async () => {
   
   try {
     const res = await profileApi.dialog({
-      userId: userStore.userInfo.userId,
+      userId: userStore.userId,
       message: message,
       conversationId: conversationId.value
     })
     
-    conversationId.value = res.data.conversationId
+    const data = res.data as any
+    conversationId.value = data.conversationId
     messages.value.push({
       role: 'assistant',
-      content: res.data.assistantMessage
+      content: data.assistantMessage
     })
     
     await loadProfileData()

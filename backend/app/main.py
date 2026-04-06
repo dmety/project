@@ -44,6 +44,19 @@ app.add_exception_handler(Exception, general_exception_handler)
 app.include_router(api_router)
 
 
+@app.get("/routes")
+def list_routes():
+    route_list = []
+    for route in app.routes:
+        if hasattr(route, "path"):
+            route_list.append({
+                "path": route.path,
+                "name": route.name,
+                "methods": list(route.methods) if hasattr(route, "methods") else []
+            })
+    return {"routes": route_list}
+
+
 @app.get("/")
 def root():
     return {

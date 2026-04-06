@@ -190,3 +190,17 @@ export interface TutorDialogResponse {
   diagramUrl?: string
   relatedExercises: number[]
 }
+
+export interface RunCodeResponse {
+  success: boolean
+  output?: string
+  errors?: string
+}
+
+export interface ResourcePushItem {
+  resourceId: number
+  resourceType: string
+  knowledgeId: number
+  readStatus: number
+  pushedAt: string
+}

@@ -21,7 +21,53 @@ export interface LoginParams {
 
 export interface LoginResponse {
   token: string
-  userInfo: UserInfo
+  user_id: number
+  username: string
+  roles: string[]
+  permissions: string[]
+}
+
+export interface Role {
+  roleId: number
+  roleName: string
+  roleCode: string
+  roleType: string
+  roleDesc?: string
+  sortOrder: number
+  status: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Permission {
+  permissionId: number
+  permissionName: string
+  permissionCode: string
+  permissionType: string
+  parentId: number
+  routePath?: string
+  componentPath?: string
+  icon?: string
+  sortOrder: number
+  status: number
+  createdAt: string
+}
+
+export interface OperationLog {
+  logId: number
+  userId?: number
+  roleCode?: string
+  module?: string
+  operationType?: string
+  requestUrl?: string
+  requestMethod?: string
+  requestParams?: string
+  responseResult?: string
+  operationIp?: string
+  operationTime: string
+  duration?: number
+  status: number
+  errorMsg?: string
 }
 
 export interface ProfileDimension {

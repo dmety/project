@@ -9,6 +9,13 @@ from app.models.learning import (
     UserExerciseRecord,
     LearningEvaluation
 )
+from app.models.permission import (
+    SysRole,
+    SysPermission,
+    SysUserRole,
+    SysRolePermission,
+    SysOperationLog
+)
 
 __all__ = [
     "UserInfo",
@@ -20,5 +27,10 @@ __all__ = [
     "LearningBehavior",
     "ExerciseInfo",
     "UserExerciseRecord",
-    "LearningEvaluation"
+    "LearningEvaluation",
+    "SysRole",
+    "SysPermission",
+    "SysUserRole",
+    "SysRolePermission",
+    "SysOperationLog"
 ]

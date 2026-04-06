@@ -1,6 +1,11 @@
 import request from './request'
 import type {
   ApiResponse,
+  LoginParams,
+  LoginResponse,
+  Role,
+  Permission,
+  OperationLog,
   ProfileDialogRequest,
   ProfileDialogResponse,
   ProfileUpdateRequest,
@@ -12,10 +17,37 @@ import type {
 } from '@/types'
 
 export const authApi = {
-  login: (data: { username: string; password: string }) =>
-    request.post<ApiResponse<any>>('/auth/login', data),
+  login: (data: LoginParams) =>
+    request.post<ApiResponse<LoginResponse>>('/v1/permission/login', data),
   register: (data: { username: string; password: string; major?: string; grade?: string }) =>
     request.post<ApiResponse<any>>('/auth/register', data)
+}
+
+export const permissionApi = {
+  getRoles: (status?: number) =>
+    request.get<ApiResponse<Role[]>>('/v1/permission/roles', { params: { status } }),
+  createRole: (data: any) =>
+    request.post<ApiResponse<Role>>('/v1/permission/roles', data),
+  updateRole: (roleId: number, data: any) =>
+    request.put<ApiResponse<Role>>(`/v1/permission/roles/${roleId}`, data),
+  getPermissions: (permissionType?: string, status?: number) =>
+    request.get<ApiResponse<Permission[]>>('/v1/permission/permissions', { 
+      params: { permission_type: permissionType, status } 
+    }),
+  createPermission: (data: any) =>
+    request.post<ApiResponse<Permission>>('/v1/permission/permissions', data),
+  updatePermission: (permissionId: number, data: any) =>
+    request.put<ApiResponse<Permission>>(`/v1/permission/permissions/${permissionId}`, data),
+  assignUserRoles: (userId: number, roleIds: number[]) =>
+    request.post<ApiResponse<any>>(`/v1/permission/user/${userId}/roles`, { role_ids: roleIds }),
+  getUserRoles: (userId: number) =>
+    request.get<ApiResponse<Role[]>>(`/v1/permission/user/${userId}/roles`),
+  assignRolePermissions: (roleId: number, permissionIds: number[]) =>
+    request.post<ApiResponse<any>>(`/v1/permission/role/${roleId}/permissions`, { permission_ids: permissionIds }),
+  getRolePermissions: (roleId: number) =>
+    request.get<ApiResponse<Permission[]>>(`/v1/permission/role/${roleId}/permissions`),
+  getOperationLogs: (params?: { userId?: number; module?: string; status?: number; limit?: number }) =>
+    request.get<ApiResponse<OperationLog[]>>('/v1/permission/logs', { params })
 }
 
 export const profileApi = {

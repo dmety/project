@@ -27,12 +27,16 @@
             placeholder="请输入密码"
           />
         </div>
+        <div v-if="error" class="mb-4 text-red-500 text-sm">
+          {{ error }}
+        </div>
         <div class="flex items-center justify-between">
           <button
             type="submit"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            :disabled="loading"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
           >
-            登录
+            {{ loading ? '登录中...' : '登录' }}
           </button>
         </div>
       </form>
@@ -41,14 +45,37 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/store/user'
+import { authApi } from '@/services/api'
+
+const router = useRouter()
+const userStore = useUserStore()
 
 const form = reactive({
   username: '',
   password: ''
 })
+const loading = ref(false)
+const error = ref('')
 
-const handleLogin = () => {
-  console.log('登录信息:', form)
+const handleLogin = async () => {
+  loading.value = true
+  error.value = ''
+  
+  try {
+    const res = await authApi.login(form)
+    if (res.data.code === 200) {
+      userStore.setAuthData(res.data.data)
+      router.push('/')
+    } else {
+      error.value = res.data.message || '登录失败'
+    }
+  } catch (err: any) {
+    error.value = err.response?.data?.message || '登录失败，请稍后重试'
+  } finally {
+    loading.value = false
+  }
 }
 </script>

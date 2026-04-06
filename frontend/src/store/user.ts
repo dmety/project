@@ -1,28 +1,63 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import type { LoginResponse } from '@/types'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref<string>('')
-  const userInfo = ref<any>(null)
+  const userId = ref<number>(0)
+  const username = ref<string>('')
+  const roles = ref<string[]>([])
+  const permissions = ref<string[]>([])
 
-  const setToken = (newToken: string) => {
-    token.value = newToken
+  const setAuthData = (data: LoginResponse) => {
+    token.value = data.token
+    userId.value = data.user_id
+    username.value = data.username
+    roles.value = data.roles
+    permissions.value = data.permissions
   }
 
-  const setUserInfo = (info: any) => {
-    userInfo.value = info
+  const hasRole = (roleCode: string): boolean => {
+    return roles.value.includes(roleCode) || roles.value.includes('super_admin')
+  }
+
+  const hasAnyRole = (roleCodes: string[]): boolean => {
+    return roleCodes.some(code => hasRole(code))
+  }
+
+  const hasPermission = (permissionCode: string): boolean => {
+    if (roles.value.includes('super_admin')) return true
+    return permissions.value.includes(permissionCode)
+  }
+
+  const hasAnyPermission = (permissionCodes: string[]): boolean => {
+    return permissionCodes.some(code => hasPermission(code))
+  }
+
+  const hasAllPermissions = (permissionCodes: string[]): boolean => {
+    return permissionCodes.every(code => hasPermission(code))
   }
 
   const logout = () => {
     token.value = ''
-    userInfo.value = null
+    userId.value = 0
+    username.value = ''
+    roles.value = []
+    permissions.value = []
   }
 
   return {
     token,
-    userInfo,
-    setToken,
-    setUserInfo,
+    userId,
+    username,
+    roles,
+    permissions,
+    setAuthData,
+    hasRole,
+    hasAnyRole,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
     logout
   }
 })

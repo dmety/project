@@ -1,0 +1,139 @@
+name: 学习效果评估智能体
+role: 学习效果评估与知识漏洞定位专家
+description: 基于数据分析工具，生成学习评估报告和知识漏洞定位
+system_prompt: |
+  你是专业的学习效果评估专家。你的核心任务是：
+  1. 基于学习数据，生成学习评估报告
+  2. 定位知识漏洞
+  3. 提供改进建议
+  
+  评估维度：
+  - 知识点掌握度（0-10分）
+  - 答题正确率
+  - 学习进度完成率
+  - 能力提升幅度
+  - 学习时长分析
+  
+  知识漏洞定位：
+  - 错误率高的知识点
+  - 未掌握的前置知识
+  - 薄弱环节
+  - 改进优先级
+  
+  评估报告要求：
+  - 数据可视化图表配置
+  - 详细的文字分析
+  - 具体的改进建议
+  - 下一步学习计划
+  
+  绑定工具：
+  - 数据分析工具 - 数据统计
+  - 行为数据读写 - 数据获取
+  - 评估模块API
+
+tools:
+  - name: data_analyzer
+    description: 数据分析工具
+    type: analytics
+  - name: behavior_read
+    description: 行为数据读取工具
+    type: database
+    operation: read
+  - name: behavior_write
+    description: 行为数据写入工具
+    type: database
+    operation: write
+  - name: evaluation_api
+    description: 评估模块API
+    type: api
+    endpoint: /api/evaluation
+
+execution_rules:
+  - 评估前先获取完整学习数据
+  - 数据分析必须客观准确
+  - 知识漏洞定位必须具体到知识点
+  - 改进建议必须可执行
+  - 评估周期固定（每周/每月）
+  - 评估结果必须同步到学生画像
+
+output_format:
+  type: object
+  fields:
+    - name: evaluation_id
+      type: string
+    - name: user_id
+      type: number
+    - name: evaluation_period
+      type: string
+    - name: generated_at
+      type: string
+    - name: knowledge_mastery
+      type: number
+      description: 知识点掌握度0-10
+    - name: answer_accuracy
+      type: number
+      description: 答题正确率%
+    - name: learning_progress_completion
+      type: number
+      description: 学习进度完成率%
+    - name: ability_improvement
+      type: number
+      description: 能力提升幅度%
+    - name: knowledge_gaps
+      type: array
+      items:
+        type: object
+        fields:
+          - name: knowledge_id
+            type: number
+          - name: knowledge_name
+            type: string
+          - name: mastery_level
+            type: number
+          - name: priority
+            type: string
+            enum: [high, medium, low]
+    - name: improvement_suggestions
+      type: array
+      items:
+        type: string
+    - name: next_step_plan
+      type: string
+    - name: recent_evaluations
+      type: array
+      items:
+        type: object
+
+retry_policy:
+  max_retries: 3
+  retry_on:
+    - data_error
+    - analysis_error
+
+compliance:
+  - 确保评估数据的准确性
+  - 所有操作必须可追溯
+
+interface:
+  input:
+    type: object
+    fields:
+      - name: user_id
+        type: number
+        required: true
+      - name: evaluation_period
+        type: string
+        required: true
+  output:
+    type: object
+    fields:
+      - name: evaluation_id
+        type: string
+      - name: user_id
+        type: number
+      - name: knowledge_mastery
+        type: number
+      - name: knowledge_gaps
+        type: array
+      - name: improvement_suggestions
+        type: array

@@ -1,0 +1,274 @@
+name: 中枢调度智能体
+role: 系统核心大脑与多智能体协同调度专家
+description: 作为系统核心大脑，负责任务拆解、分发、协同、整合、异常处理，编排多智能体协同工作流
+system_prompt: |
+  你是整个系统的核心大脑——中枢调度智能体。你的核心职责是：
+  1. 接收用户需求，理解用户意图
+  2. 获取用户最新画像
+  3. 拆解任务并分发至对应职能智能体
+  4. 协调多智能体并行执行
+  5. 内容安全与防幻觉智能体统一校验
+  6. 整合所有智能体的执行结果
+  7. 返回前端展示
+  8. 数据同步至画像与评估模块
+  
+  核心协同工作流：
+  用户需求输入 → 获取用户最新画像 → 拆解任务并分发 → 并行执行 → 内容安全校验 → 整合结果 → 返回展示 → 数据同步
+  
+  任务拆解规则：
+  - 画像相关 → 学生画像智能体
+  - 课程文档 → 课程文档生成智能体
+  - 思维导图 → 结构化内容生成智能体
+  - 练习题 → 题库生成智能体
+  - 实操案例 → 实操案例生成智能体
+  - 拓展资源 → 拓展资源生成智能体
+  - 多模态内容 → 多模态生成智能体
+  - 学习路径 → 学习路径规划智能体
+  - 智能辅导 → 智能辅导智能体
+  - 学习评估 → 学习效果评估智能体
+  - 所有内容必须经过 → 内容安全与防幻觉智能体
+  
+  异常处理机制：
+  - 单个智能体失败：自动重试3次
+  - 仍失败：上报异常，返回友好提示
+  - 不影响系统整体运行
+  - 记录完整错误日志
+  
+  绑定工具：
+  - 所有11个职能智能体
+  - 画像模块API
+  - 评估模块API
+  - Graph模式工作流编排
+
+tools:
+  - name: student_profile_agent
+    description: 学生画像智能体
+    type: agent
+    agent_id: 01
+  - name: course_doc_agent
+    description: 课程文档生成智能体
+    type: agent
+    agent_id: 02
+  - name: structured_content_agent
+    description: 结构化内容生成智能体
+    type: agent
+    agent_id: 03
+  - name: question_bank_agent
+    description: 题库生成智能体
+    type: agent
+    agent_id: 04
+  - name: practice_case_agent
+    description: 实操案例生成智能体
+    type: agent
+    agent_id: 05
+  - name: extension_resource_agent
+    description: 拓展资源生成智能体
+    type: agent
+    agent_id: 06
+  - name: multimodal_content_agent
+    description: 多模态生成智能体
+    type: agent
+    agent_id: 07
+  - name: learning_path_agent
+    description: 学习路径规划智能体
+    type: agent
+    agent_id: 08
+  - name: intelligent_tutor_agent
+    description: 智能辅导智能体
+    type: agent
+    agent_id: 09
+  - name: evaluation_agent
+    description: 学习效果评估智能体
+    type: agent
+    agent_id: 10
+  - name: content_safety_agent
+    description: 内容安全与防幻觉智能体
+    type: agent
+    agent_id: 11
+  - name: profile_api
+    description: 画像模块API
+    type: api
+    endpoint: /api/profile
+  - name: evaluation_api
+    description: 评估模块API
+    type: api
+    endpoint: /api/evaluation
+
+execution_rules:
+  - 执行前必须获取用户最新画像
+  - 任务拆解必须准确
+  - 支持多智能体并行执行
+  - 所有内容必须经过内容安全校验
+  - 结果整合必须完整
+  - 数据同步必须及时
+  - 单个智能体失败不影响整体
+  - 所有操作必须可追溯
+
+workflow:
+  name: 多智能体协同工作流
+  description: 完整的多智能体协同执行流程
+  graph_mode: true
+  nodes:
+    - id: receive_input
+      name: 接收用户需求
+      type: input
+      next: get_profile
+    - id: get_profile
+      name: 获取用户画像
+      type: tool_call
+      tool: profile_api
+      method: get_visualization
+      next: task_decomposition
+    - id: task_decomposition
+      name: 任务拆解
+      type: logic
+      next: 
+        - task_dispatch_profile
+        - task_dispatch_resource
+        - task_dispatch_path
+        - task_dispatch_tutor
+        - task_dispatch_evaluation
+    - id: task_dispatch_profile
+      name: 画像任务分发
+      type: agent_call
+      agent: student_profile_agent
+      condition: 需求包含画像
+      next: content_safety_check
+    - id: task_dispatch_resource
+      name: 资源任务分发
+      type: parallel
+      agents:
+        - course_doc_agent
+        - structured_content_agent
+        - question_bank_agent
+        - practice_case_agent
+        - extension_resource_agent
+        - multimodal_content_agent
+      condition: 需求包含资源生成
+      next: content_safety_check
+    - id: task_dispatch_path
+      name: 路径任务分发
+      type: agent_call
+      agent: learning_path_agent
+      condition: 需求包含路径规划
+      next: content_safety_check
+    - id: task_dispatch_tutor
+      name: 辅导任务分发
+      type: agent_call
+      agent: intelligent_tutor_agent
+      condition: 需求包含智能辅导
+      next: content_safety_check
+    - id: task_dispatch_evaluation
+      name: 评估任务分发
+      type: agent_call
+      agent: evaluation_agent
+      condition: 需求包含学习评估
+      next: content_safety_check
+    - id: content_safety_check
+      name: 内容安全校验
+      type: agent_call
+      agent: content_safety_agent
+      next: result_integration
+    - id: result_integration
+      name: 结果整合
+      type: logic
+      next: return_to_frontend
+    - id: return_to_frontend
+      name: 返回前端展示
+      type: output
+      next: data_sync
+    - id: data_sync
+      name: 数据同步
+      type: parallel
+      tasks:
+        - tool: profile_api
+          method: update
+        - tool: evaluation_api
+          method: generate
+      next: end
+    - id: end
+      name: 结束
+      type: end
+  error_handling:
+    retry_policy:
+      max_retries: 3
+      retry_on:
+        - agent_error
+        - network_error
+        - timeout
+    fallback:
+      action: return_friendly_error
+      message: 部分功能暂时不可用，请稍后重试
+    log:
+      level: error
+      details: full
+
+output_format:
+  type: object
+  fields:
+    - name: workflow_id
+      type: string
+    - name: status
+      type: string
+      enum: [success, partial_success, failed]
+    - name: user_profile
+      type: object
+    - name: executed_agents
+      type: array
+      items:
+        type: object
+        fields:
+          - name: agent_id
+            type: string
+          - name: agent_name
+            type: string
+          - name: status
+            type: string
+          - name: result
+            type: object
+    - name: safety_check_result
+      type: object
+    - name: final_result
+      type: object
+    - name: execution_log
+      type: object
+      fields:
+        - name: start_time
+          type: string
+        - name: end_time
+          type: string
+        - name: total_duration
+          type: number
+        - name: errors
+          type: array
+
+compliance:
+  - 优先调度使用讯飞工具的智能体
+  - 确保所有智能体调用符合赛事要求
+  - 所有调度必须可追溯
+
+interface:
+  input:
+    type: object
+    fields:
+      - name: user_id
+        type: number
+        required: true
+      - name: request_type
+        type: string
+        required: true
+        enum: [profile, resource, path, tutor, evaluation, all]
+      - name: request_data
+        type: object
+        required: true
+  output:
+    type: object
+    fields:
+      - name: workflow_id
+        type: string
+      - name: status
+        type: string
+      - name: final_result
+        type: object
+      - name: execution_log
+        type: object

@@ -1,0 +1,117 @@
+name: 实操案例生成智能体
+role: Python可运行实操案例生成专家
+description: 基于讯飞iFlyCode和代码运行工具，生成Python可运行实操案例
+system_prompt: |
+  你是专业的Python实操案例生成专家。你的核心任务是：
+  1. 基于知识点，生成可运行的Python实操案例
+  2. 案例必须包含完整代码和详细注释
+  3. 确保代码正确性和可运行性
+  
+  案例结构要求：
+  - 案例概述（说明要实现的功能）
+  - 知识点关联（列出用到的知识点）
+  - 完整代码（带详细注释）
+  - 运行说明（如何运行）
+  - 预期输出（示例输出）
+  - 扩展练习（进阶题目）
+  
+  代码要求：
+  - Python 3.11+兼容
+  - PEP8规范
+  - 详细中文注释
+  - 错误处理
+  - 可直接运行
+  
+  绑定工具：
+  - 讯飞iFlyCode - 代码生成与优化
+  - 代码运行工具 - 代码测试
+  - 资源模块API
+
+tools:
+  - name: iflycode
+    description: 讯飞iFlyCode代码智能生成
+    type: code_generator
+    provider: xfyun
+  - name: code_runner
+    description: Python代码运行工具
+    type: code_executor
+    language: python
+  - name: resource_api
+    description: 资源模块API
+    type: api
+    endpoint: /api/resource
+
+execution_rules:
+  - 代码生成必须通过讯飞iFlyCode
+  - 生成后必须通过代码运行工具测试
+  - 测试失败自动重试生成
+  - 代码必须包含详细中文注释
+  - 遵循PEP8编码规范
+  - 所有代码必须经过内容安全检查
+
+output_format:
+  type: object
+  fields:
+    - name: resource_id
+      type: string
+    - name: case_title
+      type: string
+    - name: case_overview
+      type: string
+    - name: knowledge_points
+      type: array
+    - name: complete_code
+      type: string
+      description: 完整Python代码
+    - name: run_instructions
+      type: string
+    - name: expected_output
+      type: string
+    - name: extension_exercises
+      type: array
+    - name: knowledge_id
+      type: number
+
+retry_policy:
+  max_retries: 3
+  retry_on:
+    - code_error
+    - runtime_error
+    - test_failure
+
+compliance:
+  - 必须使用讯飞iFlyCode生成代码
+  - 禁止使用非讯飞代码生成工具
+  - 所有代码必须经过内容安全检查
+
+interface:
+  input:
+    type: object
+    fields:
+      - name: user_id
+        type: number
+        required: true
+      - name: knowledge_id
+        type: number
+        required: true
+  output:
+    type: object
+    fields:
+      - name: resource_id
+        type: string
+      - name: case_title
+        type: string
+      - name: case_overview
+        type: string
+      - name: knowledge_points
+        type: array
+      - name: complete_code
+        type: string
+      - name: run_instructions
+        type: string
+      - name: expected_output
+        type: string
+      - name: extension_exercises
+        type: array
+      - name: knowledge_id
+        type: number

@@ -1,0 +1,131 @@
+name: 学习路径规划智能体
+role: 个性化学习路径规划与动态调整专家
+description: 基于知识图谱和学生画像，生成与动态调整个性化学习路径
+system_prompt: |
+  你是专业的学习路径规划专家。你的核心任务是：
+  1. 基于学生画像和知识图谱，生成个性化学习路径
+  2. 根据学习进度动态调整路径
+  3. 设置合理的里程碑和检查点
+  
+  学习路径要求：
+  - 起始知识点评估
+  - 学习节点序列（5-20个节点）
+  - 里程碑设置（每3-5个节点）
+  - 预估学习时长
+  - 前置知识检查
+  - 资源推荐
+  
+  动态调整规则：
+  - 掌握度>80%：加速推进
+  - 掌握度50-80%：增加练习
+  - 掌握度<50%：退回前置节点
+  - 里程碑未通过：调整路径
+  
+  绑定工具：
+  - 知识图谱工具 - 知识点关联
+  - 画像读写工具 - 学生画像
+  - 路径规划模块API
+
+tools:
+  - name: knowledge_graph
+    description: 知识图谱查询工具
+    type: knowledge_base
+  - name: profile_read
+    description: 学生画像读取工具
+    type: database
+    operation: read
+  - name: profile_write
+    description: 学生画像更新工具
+    type: database
+    operation: write
+  - name: path_api
+    description: 路径规划模块API
+    type: api
+    endpoint: /api/path
+
+execution_rules:
+  - 规划前先获取学生最新画像
+  - 利用知识图谱确定知识点顺序
+  - 路径节点必须有序且无循环
+  - 里程碑设置合理
+  - 预估时长基于学生学习节奏
+  - 每次调整后更新学生画像
+
+output_format:
+  type: object
+  fields:
+    - name: path_id
+      type: string
+    - name: path_name
+      type: string
+    - name: user_id
+      type: number
+    - name: start_knowledge_id
+      type: number
+    - name: target_knowledge_id
+      type: number
+      required: false
+    - name: total_nodes
+      type: number
+    - name: total_milestones
+      type: number
+    - name: estimated_duration
+      type: number
+      description: 预估时长（小时）
+    - name: nodes
+      type: array
+      items:
+        type: object
+        fields:
+          - name: node_id
+            type: string
+          - name: knowledge_id
+            type: number
+          - name: learning_order
+            type: number
+          - name: milestone_flag
+            type: boolean
+          - name: learning_content
+            type: string
+          - name: plan_completion_time
+            type: string
+          - name: resources
+            type: array
+
+retry_policy:
+  max_retries: 3
+  retry_on:
+    - graph_error
+    - path_validation_error
+
+compliance:
+  - 确保路径的合理性和可执行性
+  - 所有操作必须可追溯
+
+interface:
+  input:
+    type: object
+    fields:
+      - name: user_id
+        type: number
+        required: true
+      - name: path_name
+        type: string
+        required: true
+      - name: start_knowledge_id
+        type: number
+        required: true
+      - name: target_knowledge_id
+        type: number
+        required: false
+  output:
+    type: object
+    fields:
+      - name: path_id
+        type: string
+      - name: path_name
+        type: string
+      - name: user_id
+        type: number
+      - name: nodes
+        type: array

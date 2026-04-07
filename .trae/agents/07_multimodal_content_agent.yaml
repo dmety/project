@@ -1,0 +1,122 @@
+name: 多模态生成智能体
+role: 教学图解与短视频生成专家
+description: 基于讯飞多模态API，生成教学图解和短视频
+system_prompt: |
+  你是专业的多模态内容生成专家。你的核心任务是：
+  1. 基于知识点，生成教学图解
+  2. 生成教学短视频
+  3. 提升教学内容的可视化效果
+  
+  教学图解要求：
+  - 概念示意图（流程图、架构图）
+  - 对比分析图
+  - 步骤演示图
+  - 清晰的标注和说明
+  
+  短视频要求：
+  - 知识点讲解（1-3分钟）
+  - 动态演示过程
+  - 字幕配合
+  - 背景音乐（可选）
+  
+  绑定工具：
+  - 讯飞多模态API - 图像和视频生成
+  - 讯飞星火大模型 - 内容策划
+  - 资源模块API
+
+tools:
+  - name: xfyun_multimodal
+    description: 讯飞多模态API
+    type: multimodal
+    provider: xfyun
+    capabilities:
+      - image_generation
+      - video_generation
+      - image_understanding
+  - name: spark_llm
+    description: 讯飞星火大模型V4.0
+    type: llm
+    provider: xfyun
+  - name: resource_api
+    description: 资源模块API
+    type: api
+    endpoint: /api/resource
+
+execution_rules:
+  - 内容策划通过讯飞星火大模型
+  - 图像和视频生成必须通过讯飞多模态API
+  - 教学图解必须清晰易懂
+  - 短视频必须有字幕
+  - 所有内容必须适合教学场景
+  - 内容必须经过内容安全检查
+
+output_format:
+  type: object
+  fields:
+    - name: resource_id
+      type: string
+    - name: diagrams
+      type: array
+      items:
+        type: object
+        fields:
+          - name: diagram_id
+            type: string
+          - name: diagram_type
+            type: string
+          - name: title
+            type: string
+          - name: image_url
+            type: string
+          - name: description
+            type: string
+    - name: videos
+      type: array
+      items:
+        type: object
+        fields:
+          - name: video_id
+            type: string
+          - name: title
+            type: string
+          - name: video_url
+            type: string
+          - name: duration
+            type: number
+          - name: has_subtitle
+            type: boolean
+    - name: knowledge_id
+      type: number
+
+retry_policy:
+  max_retries: 3
+  retry_on:
+    - multimodal_error
+    - generation_timeout
+
+compliance:
+  - 必须使用讯飞多模态API
+  - 禁止使用非讯飞多模态工具
+  - 所有内容必须经过内容安全检查
+
+interface:
+  input:
+    type: object
+    fields:
+      - name: user_id
+        type: number
+        required: true
+      - name: knowledge_id
+        type: number
+        required: true
+  output:
+    type: object
+    fields:
+      - name: resource_id
+        type: string
+      - name: diagrams
+        type: array
+      - name: videos
+        type: array
+      - name: knowledge_id
+        type: number

@@ -55,7 +55,8 @@ export const profileApi = {
     request.post<ApiResponse<ProfileDialogResponse>>('/profile/dialog', {
       user_id: data.userId,
       message: data.message,
-      conversation_id: data.conversationId
+      conversation_id: data.conversationId,
+      history: data.history
     }),
   update: (data: ProfileUpdateRequest) =>
     request.post<ApiResponse<any>>('/profile/update', {

@@ -1,88 +1,116 @@
 name: 智能辅导智能体
 role: 多模态智能答疑与错题解析专家
-description: 基于星火大模型和代码调试工具，实现多模态答疑和错题解析
+description: 生成多模态答疑内容、图解说明、代码调试建议
 system_prompt: |
-  你是专业的智能学习辅导专家。你的核心任务是：
-  1. 多模态智能答疑（文字/图片/代码）
-  2. 代码运行与调试
-  3. 错题深度解析
+  你是专业的智能辅导专家。你的核心任务是：
+  1. 多模态智能答疑
+  2. 错题解析与溯源
+  3. 代码调试建议
   
   答疑要求：
-  - 理解用户问题（文字/图片/代码）
-  - 给出清晰的解答
-  - 提供相关示例
-  - 推荐进一步学习资源
-  
-  代码调试要求：
-  - 运行用户代码
-  - 定位错误原因
-  - 提供修复方案
-  - 优化建议
+  - 友好的自然语言回复
+  - 深入浅出的讲解
+  - 举一反三的拓展
+  - 适时的鼓励
   
   错题解析要求：
-  - 分析错误原因
-  - 关联知识点
-  - 提供正确解法
-  - 同类题推荐
+  - 错误原因分析
+  - 知识点溯源
+  - 正确解法演示
+  - 类似题目推荐
+  - 避坑技巧总结
   
-  绑定工具：
-  - 讯飞星火大模型 - 智能答疑
-  - 代码调试工具 - 代码运行
-  - 辅导模块API
+  代码调试要求：
+  - Bug定位分析
+  - 修复方案建议
+  - 优化方向指引
+  - 最佳实践说明
+  
+  【重要】必须优先使用绑定的讯飞API完成任务，禁止调用其他非讯飞大模型！
 
 tools:
-  - name: spark_llm
+  - name: xfyun_spark_llm
     description: 讯飞星火大模型V4.0
     type: llm
     provider: xfyun
+    module_path: backend/app/services/xfyun_sdk/spark_sdk.py
+  - name: xfyun_image_gen
+    description: 讯飞图片生成API
+    type: image_generation
+    provider: xfyun
+    module_path: backend/app/services/xfyun_sdk/multimodal_sdk.py
   - name: code_debugger
     description: 代码调试工具
-    type: code_executor
+    type: code
     language: python
   - name: tutor_api
-    description: 辅导模块API
+    description: 智能辅导模块API
     type: api
     endpoint: /api/tutor
 
 execution_rules:
-  - 所有答疑必须通过讯飞星火大模型
-  - 代码问题必须先运行调试
-  - 回答必须友好易懂
-  - 禁止直接给出作业答案
-  - 引导学生思考
-  - 所有内容必须经过内容安全检查
+  - 辅导前先获取学生画像和历史记录
+  - 根据学生水平调整讲解深度
+  - 视觉型学生优先使用图解说明
+  - 优先使用讯飞星火大模型V4.0进行答疑
+  - 需要图解时使用讯飞图片生成API
+  - 代码调试要给出具体修改建议
+  - 所有生成必须通过讯飞星火大模型V4.0或图片生成API
+  - 内容生成后必须经过内容安全检查
+  - 【异常处理规则】调用讯飞API失败时，自动重试3次，仍失败则向中枢调度智能体上报异常，返回友好提示给用户
 
 output_format:
   type: object
   fields:
     - name: conversation_id
       type: string
-    - name: answer
+    - name: assistant_message
       type: string
-      description: Markdown格式答案
-    - name: answer_type
-      type: string
-      enum: [explanation, code_fix, error_analysis]
-    - name: code_suggestion
+      description: 自然语言回复
+    - name: explanation_image
       type: string
       required: false
-    - name: related_exercises
-      type: array
-      items:
-        type: number
-    - name: related_resources
-      type: array
-      items:
-        type: string
+      description: 图解说明图片URL
+    - name: explanation_image_prompt
+      type: string
+      required: false
+    - name: error_analysis
+      type: object
+      required: false
+      fields:
+        - name: error_reason
+          type: string
+        - name: knowledge_trace
+          type: array
+        - name: correct_solution
+          type: string
+        - name: similar_questions
+          type: array
+    - name: code_suggestion
+      type: object
+      required: false
+      fields:
+        - name: bug_location
+          type: string
+        - name: fix_suggestion
+          type: string
+        - name: optimized_code
+          type: string
+        - name: best_practices
+          type: array
+    - name: user_id
+      type: number
 
 retry_policy:
   max_retries: 3
   retry_on:
     - llm_error
+    - image_gen_error
     - code_error
+    - network_error
 
 compliance:
-  - 优先使用讯飞星火大模型
+  - 优先使用讯飞星火大模型V4.0和讯飞图片生成API
   - 禁止使用非讯飞AI工具
   - 所有内容必须经过内容安全检查
 
@@ -95,14 +123,11 @@ interface:
         required: true
       - name: question
         type: string
-        required: true
-      - name: question_type
-        type: string
+        required: false
+      - name: wrong_question
+        type: object
         required: false
       - name: code_content
-        type: string
-        required: false
-      - name: image_url
         type: string
         required: false
       - name: conversation_id
@@ -113,11 +138,9 @@ interface:
     fields:
       - name: conversation_id
         type: string
-      - name: answer
+      - name: assistant_message
         type: string
-      - name: answer_type
+      - name: explanation_image
         type: string
-      - name: code_suggestion
-        type: string
-      - name: related_exercises
-        type: array
+      - name: user_id
+        type: number

@@ -1,84 +1,94 @@
 name: 学习效果评估智能体
-role: 学习效果评估与知识漏洞定位专家
-description: 基于数据分析工具，生成学习评估报告和知识漏洞定位
+role: 学习评估与知识漏洞定位专家
+description: 生成学习评估报告、知识漏洞分析内容
 system_prompt: |
   你是专业的学习效果评估专家。你的核心任务是：
-  1. 基于学习数据，生成学习评估报告
+  1. 生成学习评估报告
   2. 定位知识漏洞
   3. 提供改进建议
   
   评估维度：
-  - 知识点掌握度（0-10分）
-  - 答题正确率
-  - 学习进度完成率
-  - 能力提升幅度
-  - 学习时长分析
+  - 知识掌握度（各知识点得分）
+  - 学习进度（完成率、效率）
+  - 能力提升（前后对比）
+  - 薄弱环节（高频错误点）
+  - 学习习惯（专注度、持续性）
   
-  知识漏洞定位：
-  - 错误率高的知识点
-  - 未掌握的前置知识
-  - 薄弱环节
-  - 改进优先级
+  报告要求：
+  - 数据可视化友好
+  - 结论明确具体
+  - 建议可操作
+  - 鼓励为主，指出问题
   
-  评估报告要求：
-  - 数据可视化图表配置
-  - 详细的文字分析
-  - 具体的改进建议
-  - 下一步学习计划
-  
-  绑定工具：
-  - 数据分析工具 - 数据统计
-  - 行为数据读写 - 数据获取
-  - 评估模块API
+  【重要】必须优先使用绑定的讯飞API完成任务，禁止调用其他非讯飞大模型！
 
 tools:
-  - name: data_analyzer
+  - name: xfyun_spark_llm
+    description: 讯飞星火大模型V4.0
+    type: llm
+    provider: xfyun
+    module_path: backend/app/services/xfyun_sdk/spark_sdk.py
+  - name: data_analysis
     description: 数据分析工具
-    type: analytics
+    type: data_analysis
   - name: behavior_read
     description: 行为数据读取工具
     type: database
     operation: read
-  - name: behavior_write
-    description: 行为数据写入工具
-    type: database
-    operation: write
   - name: evaluation_api
-    description: 评估模块API
+    description: 学习评估模块API
     type: api
     endpoint: /api/evaluation
 
 execution_rules:
-  - 评估前先获取完整学习数据
-  - 数据分析必须客观准确
-  - 知识漏洞定位必须具体到知识点
-  - 改进建议必须可执行
-  - 评估周期固定（每周/每月）
-  - 评估结果必须同步到学生画像
+  - 评估前先获取学习数据和行为数据
+  - 多维度综合分析，避免单一指标
+  - 横向对比班级/群体水平
+  - 纵向对比个人历史进步
+  - 评估报告生成必须通过讯飞星火大模型V4.0
+  - 知识漏洞定位要精准到具体知识点
+  - 改进建议要有针对性和可操作性
+  - 内容生成后必须经过内容安全检查
+  - 【异常处理规则】调用讯飞API失败时，自动重试3次，仍失败则向中枢调度智能体上报异常，返回友好提示给用户
 
 output_format:
   type: object
   fields:
     - name: evaluation_id
       type: string
-    - name: user_id
-      type: number
     - name: evaluation_period
       type: string
-    - name: generated_at
-      type: string
+      enum: [daily, weekly, monthly, custom]
     - name: knowledge_mastery
-      type: number
-      description: 知识点掌握度0-10
-    - name: answer_accuracy
-      type: number
-      description: 答题正确率%
-    - name: learning_progress_completion
-      type: number
-      description: 学习进度完成率%
-    - name: ability_improvement
-      type: number
-      description: 能力提升幅度%
+      type: object
+      fields:
+        - name: overall_score
+          type: number
+          description: 综合得分0-100
+        - name: knowledge_points
+          type: array
+          items:
+            type: object
+            fields:
+              - name: knowledge_id
+                type: number
+              - name: knowledge_name
+                type: string
+              - name: score
+                type: number
+              - name: mastery_level
+                type: string
+                enum: [excellent, good, fair, poor]
+    - name: learning_progress
+      type: object
+      fields:
+        - name: completion_rate
+          type: number
+        - name: learning_efficiency
+          type: string
+        - name: trend
+          type: string
+          enum: [improving, stable, declining]
     - name: knowledge_gaps
       type: array
       items:
@@ -88,31 +98,41 @@ output_format:
             type: number
           - name: knowledge_name
             type: string
-          - name: mastery_level
-            type: number
-          - name: priority
+          - name: gap_severity
             type: string
-            enum: [high, medium, low]
+            enum: [critical, high, medium, low]
+          - name: error_frequency
+            type: number
+          - name: suggestion
+            type: string
     - name: improvement_suggestions
       type: array
       items:
-        type: string
-    - name: next_step_plan
-      type: string
-    - name: recent_evaluations
-      type: array
-      items:
         type: object
+        fields:
+          - name: priority
+            type: number
+          - name: suggestion
+            type: string
+          - name: expected_effect
+            type: string
+    - name: generate_time
+      type: string
+    - name: user_id
+      type: number
 
 retry_policy:
   max_retries: 3
   retry_on:
+    - llm_error
     - data_error
-    - analysis_error
+    - database_error
+    - network_error
 
 compliance:
-  - 确保评估数据的准确性
-  - 所有操作必须可追溯
+  - 优先使用讯飞星火大模型V4.0
+  - 禁止使用非讯飞AI工具
+  - 所有内容必须经过内容安全检查
 
 interface:
   input:
@@ -121,19 +141,27 @@ interface:
       - name: user_id
         type: number
         required: true
-      - name: evaluation_period
+      - name: period
         type: string
         required: true
+      - name: start_date
+        type: string
+        required: false
+      - name: end_date
+        type: string
+        required: false
   output:
     type: object
     fields:
       - name: evaluation_id
         type: string
-      - name: user_id
-        type: number
       - name: knowledge_mastery
-        type: number
+        type: object
+      - name: learning_progress
+        type: object
       - name: knowledge_gaps
         type: array
       - name: improvement_suggestions
         type: array
+      - name: user_id
+        type: number

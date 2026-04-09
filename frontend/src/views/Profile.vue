@@ -261,7 +261,8 @@ const heatmapOption = computed<EChartsOption>(() => {
   }
 })
 
-const renderMarkdown = (content: string) => {
+const renderMarkdown = (content: string | null | undefined) => {
+  if (!content) return ''
   return marked(content)
 }
 
@@ -291,13 +292,23 @@ const sendMessage = async () => {
   scrollToBottom()
   
   try {
+    const history = messages.value.slice(0, -1).map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }))
+    
+    console.log('发送的历史消息数:', history.length)
+    
     const res = await profileApi.dialog({
       userId: userStore.userId,
       message: message,
-      conversationId: conversationId.value
+      conversationId: conversationId.value,
+      history: history
     })
     
+    console.log('API响应:', res)
     const data = res.data as any
+    console.log('响应数据:', data)
     conversationId.value = data.conversationId
     messages.value.push({
       role: 'assistant',

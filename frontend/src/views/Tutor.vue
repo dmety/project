@@ -106,7 +106,8 @@ print('Hello, World!')
 const codeOutput = ref('')
 const isRunning = ref(false)
 
-const renderMarkdown = (content: string) => {
+const renderMarkdown = (content: string | null | undefined) => {
+  if (!content) return ''
   return marked(content)
 }
 

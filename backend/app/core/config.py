@@ -1,8 +1,18 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
+import os
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env"),
+        env_file_encoding='utf-8',
+        case_sensitive=True,
+        extra='ignore'
+    )
+    
+    VITE_API_BASE_URL: Optional[str] = None
+    
     BACKEND_HOST: str = "0.0.0.0"
     BACKEND_PORT: int = 8000
 
@@ -27,7 +37,7 @@ class Settings(BaseSettings):
     XFYUN_SPARK_APP_ID: str = ""
     XFYUN_SPARK_API_SECRET: str = ""
     XFYUN_SPARK_API_KEY: str = ""
-    XFYUN_SPARK_V4_URL: str = "https://spark-openai.xf-yun.com/v4/chat/completions"
+    XFYUN_SPARK_V4_URL: str = "https://spark-api-open.xf-yun.com/v1/chat/completions"
 
     XFYUN_MULTIMODAL_APP_ID: str = ""
     XFYUN_MULTIMODAL_API_SECRET: str = ""
@@ -37,8 +47,17 @@ class Settings(BaseSettings):
     XFYUN_CONTENT_AUDIT_API_SECRET: str = ""
     XFYUN_CONTENT_AUDIT_API_KEY: str = ""
 
-    class Config:
-        env_file = ".env"
+    XFYUN_IFLYCODE_APP_ID: str = ""
+    XFYUN_IFLYCODE_API_SECRET: str = ""
+    XFYUN_IFLYCODE_API_KEY: str = ""
 
 
 settings = Settings()
+
+# 打印配置（调试用）
+print("="*50)
+print("讯飞星火配置:")
+print(f"APP_ID: {settings.XFYUN_SPARK_APP_ID}")
+print(f"API_KEY: {settings.XFYUN_SPARK_API_KEY[:10] if settings.XFYUN_SPARK_API_KEY else ''}...")
+print(f"API_URL: {settings.XFYUN_SPARK_V4_URL}")
+print("="*50)

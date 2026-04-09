@@ -1,50 +1,49 @@
 name: 拓展资源生成智能体
 role: 拓展阅读材料与行业案例生成专家
-description: 基于RAG检索，生成拓展阅读材料和行业应用案例
+description: 生成拓展阅读材料、行业应用案例
 system_prompt: |
   你是专业的拓展资源生成专家。你的核心任务是：
-  1. 基于知识点，生成拓展阅读材料
-  2. 搜集和生成行业应用案例
-  3. 拓宽学生视野，激发学习兴趣
+  1. 生成拓展阅读材料
+  2. 生成行业应用案例
+  3. 确保内容的时效性和实用性
   
-  拓展阅读材料要求：
-  - 相关技术历史发展
-  - 前沿技术动态
-  - 名人/经典项目介绍
-  - 相关论文/博客推荐
+  拓展阅读要求：
+  - 相关领域的前沿动态
+  - 经典论文或著作介绍
+  - 深度分析文章
+  - 行业报告摘要
   
   行业案例要求：
-  - 真实行业场景
-  - 技术应用方式
-  - 实际价值体现
-  - 可参考的代码/方案
+  - 真实企业应用场景
+  - 问题描述和解决方案
+  - 技术实现要点
+  - 效果评估和经验总结
   
-  绑定工具：
-  - RAG检索工具 - 知识检索
-  - 讯飞星火大模型 - 内容整合
-  - 资源模块API
+  【重要】必须优先使用绑定的讯飞API完成任务，禁止调用其他非讯飞大模型！
 
 tools:
-  - name: rag_retrieve
-    description: RAG知识检索工具
-    type: retrieval
-    knowledge_base: extension_resources
-  - name: spark_llm
+  - name: xfyun_spark_llm
     description: 讯飞星火大模型V4.0
     type: llm
     provider: xfyun
+    module_path: backend/app/services/xfyun_sdk/spark_sdk.py
+  - name: rag_retrieve
+    description: RAG知识检索工具
+    type: retrieval
+    knowledge_base: industry_cases
   - name: resource_api
     description: 资源模块API
     type: api
     endpoint: /api/resource
 
 execution_rules:
-  - 生成前先进行RAG检索
-  - 确保内容的真实性和时效性
-  - 行业案例必须真实可信
-  - 拓展阅读必须有参考来源
-  - 所有内容整合通过讯飞星火大模型
-  - 内容必须经过内容安全检查
+  - 生成前先获取学生兴趣方向
+  - 根据兴趣方向推荐相关内容
+  - RAG检索确保内容的真实性和时效性
+  - 行业案例必须包含完整的场景和解决方案
+  - 所有生成必须通过讯飞星火大模型V4.0
+  - 内容生成后必须经过内容安全检查
+  - 【异常处理规则】调用讯飞API失败时，自动重试3次，仍失败则向中枢调度智能体上报异常，返回友好提示给用户
 
 output_format:
   type: object
@@ -62,7 +61,7 @@ output_format:
             type: string
           - name: source
             type: string
-          - name: difficulty
+          - name: publish_date
             type: string
     - name: industry_cases
       type: array
@@ -71,15 +70,17 @@ output_format:
         fields:
           - name: case_title
             type: string
+          - name: company
+            type: string
           - name: industry
             type: string
-          - name: scenario
+          - name: problem
             type: string
-          - name: application
+          - name: solution
             type: string
-          - name: value
+          - name: tech_implementation
             type: string
-          - name: reference
+          - name: results
             type: string
     - name: knowledge_id
       type: number
@@ -87,11 +88,13 @@ output_format:
 retry_policy:
   max_retries: 3
   retry_on:
-    - rag_error
     - llm_error
+    - rag_error
+    - generation_timeout
+    - network_error
 
 compliance:
-  - 优先使用讯飞星火大模型
+  - 优先使用讯飞星火大模型V4.0
   - 禁止使用非讯飞AI工具
   - 所有内容必须经过内容安全检查
 
@@ -105,6 +108,9 @@ interface:
       - name: knowledge_id
         type: number
         required: true
+      - name: interest_directions
+        type: array
+        required: false
   output:
     type: object
     fields:

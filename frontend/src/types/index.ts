@@ -81,10 +81,16 @@ export interface ProfileDimension {
   learningBehavior?: string
 }
 
+export interface ChatMessageItem {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export interface ProfileDialogRequest {
   userId: number
   message: string
   conversationId?: string
+  history?: ChatMessageItem[]
 }
 
 export interface ProfileDialogResponse {

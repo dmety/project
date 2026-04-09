@@ -3,6 +3,11 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 
+def to_camel(string: str) -> str:
+    words = string.split('_')
+    return words[0] + ''.join(word.capitalize() for word in words[1:])
+
+
 class ProfileDimension(BaseModel):
     knowledge_level: Optional[float] = Field(None, description="知识基础水平评分 0-10")
     cognitive_style: Optional[str] = Field(None, description="认知学习风格")
@@ -13,11 +18,29 @@ class ProfileDimension(BaseModel):
     interest_directions: Optional[List[str]] = Field(default_factory=list, description="兴趣方向")
     learning_behavior: Optional[str] = Field(None, description="学习行为习惯")
 
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
+
+
+class ChatMessageItem(BaseModel):
+    role: str = Field(..., description="消息角色: user/assistant")
+    content: str = Field(..., description="消息内容")
+
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
+
 
 class ProfileDialogRequest(BaseModel):
     user_id: int = Field(..., description="用户ID")
     message: str = Field(..., description="用户对话消息")
     conversation_id: Optional[str] = Field(None, description="对话ID")
+    history: Optional[List[ChatMessageItem]] = Field(default_factory=list, description="对话历史")
+
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
 
 
 class ProfileDialogResponse(BaseModel):
@@ -25,10 +48,18 @@ class ProfileDialogResponse(BaseModel):
     assistant_message: str = Field(..., description="助手回复")
     extracted_features: Optional[Dict[str, Any]] = Field(None, description="抽取的画像特征")
 
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
+
 
 class ProfileUpdateRequest(BaseModel):
     user_id: int = Field(..., description="用户ID")
     dimensions: ProfileDimension = Field(..., description="画像维度数据")
+
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
 
 
 class ProfileVisualizationData(BaseModel):
@@ -38,9 +69,17 @@ class ProfileVisualizationData(BaseModel):
     dimension_details: ProfileDimension = Field(..., description="维度详情")
     updated_at: datetime = Field(..., description="更新时间")
 
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
+
 
 class ProfileAgentInterface(BaseModel):
     agent_type: str = Field(..., description="智能体类型")
     user_id: int = Field(..., description="用户ID")
     input_data: Optional[Dict[str, Any]] = Field(None, description="输入数据")
     enable_agent: bool = Field(default=False, description="是否启用智能体")
+
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True

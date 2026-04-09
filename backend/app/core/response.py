@@ -4,12 +4,19 @@ from typing import Generic, TypeVar, Optional
 T = TypeVar('T')
 
 
+def to_camel(string: str) -> str:
+    words = string.split('_')
+    return words[0] + ''.join(word.capitalize() for word in words[1:])
+
+
 class ApiResponse(BaseModel, Generic[T]):
     code: int = Field(default=200, description="响应状态码")
     message: str = Field(default="success", description="响应消息")
     data: Optional[T] = Field(default=None, description="响应数据")
 
     class Config:
+        alias_generator = to_camel
+        populate_by_name = True
         json_schema_extra = {
             "example": {
                 "code": 200,

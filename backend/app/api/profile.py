@@ -17,8 +17,29 @@ from app.schemas.profile import (
     ProfileVisualizationData,
     ProfileAgentInterface
 )
+from app.services.xfyun_sdk.spark_sdk import SparkSDK
 
 router = APIRouter(prefix="/profile", tags=["学生画像"])
+
+spark_sdk = SparkSDK()
+
+PROFILE_SYSTEM_PROMPT = """你是一个专业的学生画像构建助手。你的任务是通过自然对话了解用户的学习情况，构建完整的学习画像。
+
+请按照以下方式与用户对话：
+1. 主动引导用户提供信息，但不要太机械
+2. 根据用户的回答，灵活地继续提问或确认信息
+3. 语气要友好、专业，像一个学习顾问
+4. 当信息收集得比较完整时，可以告诉用户画像已初步构建完成
+
+需要收集的信息包括：
+- 知识基础水平（入门/基础/中级/高级）
+- 学习风格（视觉型/听觉型/动觉型/阅读型）
+- 学习节奏偏好（快速/循序渐进/中等）
+- 学习目标（考试/就业/兴趣/竞赛/证书/提升）
+- 兴趣方向（算法/数据结构/Web开发/机器学习/数据分析/自动化等）
+- 学习行为习惯
+
+不要一次性问所有问题，要循序渐进地引导！"""
 
 
 def extract_features_from_dialog(message: str) -> Dict[str, Any]:
@@ -119,10 +140,37 @@ def profile_dialog(
     
     extracted_features = extract_features_from_dialog(request.message)
     
-    response_message = "好的，我已经了解了您的一些情况。让我继续了解更多关于您的学习情况，以便为您构建更准确的画像。"
+    try:
+        messages = [
+            {"role": "system", "content": PROFILE_SYSTEM_PROMPT}
+        ]
+        
+        if request.history:
+            for msg in request.history:
+                messages.append({"role": msg.role, "content": msg.content})
+        
+        messages.append({"role": "user", "content": request.message})
+        
+        print(f"发送给星火的消息数: {len(messages)}")
+        
+        spark_response = spark_sdk.chat(messages, temperature=0.8, max_tokens=500)
+        print(f"星火API响应: {spark_response}")
+        
+        if spark_response.get("success"):
+            response_message = spark_response["content"]
+        else:
+            error_msg = spark_response.get("error", "未知错误")
+            print(f"星火API调用失败: {error_msg}")
+            response_message = f"好的，我已经了解了您的一些情况。让我继续了解更多关于您的学习情况，以便为您构建更准确的画像。(AI服务暂不可用: {error_msg})"
+    except Exception as e:
+        print(f"星火大模型调用异常: {str(e)}")
+        import traceback
+        print(f"堆栈信息: {traceback.format_exc()}")
+        response_message = f"好的，我已经了解了您的一些情况。让我继续了解更多关于您的学习情况，以便为您构建更准确的画像。(系统异常: {str(e)})"
     
     if extracted_features:
-        response_message += " 我注意到您提到了一些关于您学习的特点，这对构建您的画像很有帮助！"
+        if "我注意到" not in response_message:
+            response_message += " 我注意到您提到了一些关于您学习的特点，这对构建您的画像很有帮助！"
     
     return success_response(
         data=ProfileDialogResponse(

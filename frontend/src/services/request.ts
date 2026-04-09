@@ -23,6 +23,8 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data
+    console.log('响应拦截器 - 原始响应:', response)
+    console.log('响应拦截器 - 响应数据:', res)
     if (res.code !== 200) {
       console.error('请求错误:', res.message)
       return Promise.reject(new Error(res.message || '请求错误'))

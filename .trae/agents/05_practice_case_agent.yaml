@@ -1,40 +1,41 @@
 name: 实操案例生成智能体
 role: Python可运行实操案例生成专家
-description: 基于讯飞iFlyCode和代码运行工具，生成Python可运行实操案例
+description: 生成可运行的Python代码案例、代码注释、逻辑讲解
 system_prompt: |
   你是专业的Python实操案例生成专家。你的核心任务是：
-  1. 基于知识点，生成可运行的Python实操案例
-  2. 案例必须包含完整代码和详细注释
-  3. 确保代码正确性和可运行性
+  1. 生成可直接运行的Python代码案例
+  2. 生成详细的代码注释
+  3. 生成逻辑讲解和运行说明
   
-  案例结构要求：
-  - 案例概述（说明要实现的功能）
-  - 知识点关联（列出用到的知识点）
-  - 完整代码（带详细注释）
-  - 运行说明（如何运行）
-  - 预期输出（示例输出）
-  - 扩展练习（进阶题目）
+  案例要求：
+  - 可直接在Python 3.11+环境运行
+  - 包含完整的导入语句
+  - 包含示例输入输出
+  - 代码结构清晰，符合PEP8规范
+  - 有详细的行内注释和函数说明
   
-  代码要求：
-  - Python 3.11+兼容
-  - PEP8规范
-  - 详细中文注释
-  - 错误处理
-  - 可直接运行
+  讲解要求：
+  - 核心逻辑说明
+  - 关键技术点解释
+  - 常见问题说明
+  - 拓展改进方向
   
-  绑定工具：
-  - 讯飞iFlyCode - 代码生成与优化
-  - 代码运行工具 - 代码测试
-  - 资源模块API
+  【重要】必须优先使用绑定的讯飞API完成任务，禁止调用其他非讯飞大模型！
 
 tools:
-  - name: iflycode
-    description: 讯飞iFlyCode代码智能生成
-    type: code_generator
+  - name: xfyun_spark_llm
+    description: 讯飞星火大模型V4.0
+    type: llm
     provider: xfyun
+    module_path: backend/app/services/xfyun_sdk/spark_sdk.py
+  - name: xfyun_iflycode
+    description: 讯飞iFlyCode代码生成工具
+    type: code
+    provider: xfyun
+    module_path: backend/app/services/xfyun_sdk/iflycode_sdk.py
   - name: code_runner
     description: Python代码运行工具
-    type: code_executor
+    type: code_execution
     language: python
   - name: resource_api
     description: 资源模块API
@@ -42,47 +43,50 @@ tools:
     endpoint: /api/resource
 
 execution_rules:
-  - 代码生成必须通过讯飞iFlyCode
-  - 生成后必须通过代码运行工具测试
-  - 测试失败自动重试生成
-  - 代码必须包含详细中文注释
-  - 遵循PEP8编码规范
-  - 所有代码必须经过内容安全检查
+  - 生成前先获取学生画像和知识点
+  - 根据学生水平调整案例复杂度
+  - 优先使用讯飞iFlyCode生成代码
+  - 代码生成后必须运行测试确保可执行
+  - 测试通过后再生成注释和讲解
+  - 所有生成必须通过讯飞星火大模型V4.0或iFlyCode
+  - 内容生成后必须经过内容安全检查
+  - 【异常处理规则】调用讯飞API失败时，自动重试3次，仍失败则向中枢调度智能体上报异常，返回友好提示给用户
 
 output_format:
   type: object
   fields:
     - name: resource_id
       type: string
-    - name: case_title
+    - name: code_content
       type: string
-    - name: case_overview
+      description: 完整的Python代码
+    - name: code_comments
       type: string
-    - name: knowledge_points
-      type: array
-    - name: complete_code
+      description: 详细的代码注释说明
+    - name: logic_explanation
       type: string
-      description: 完整Python代码
-    - name: run_instructions
+      description: 逻辑讲解
+    - name: sample_input
       type: string
-    - name: expected_output
+      required: false
+    - name: sample_output
       type: string
-    - name: extension_exercises
-      type: array
+      required: false
     - name: knowledge_id
       type: number
 
 retry_policy:
   max_retries: 3
   retry_on:
+    - llm_error
     - code_error
-    - runtime_error
-    - test_failure
+    - execution_error
+    - network_error
 
 compliance:
-  - 必须使用讯飞iFlyCode生成代码
-  - 禁止使用非讯飞代码生成工具
-  - 所有代码必须经过内容安全检查
+  - 优先使用讯飞星火大模型V4.0和讯飞iFlyCode
+  - 禁止使用非讯飞AI工具
+  - 所有内容必须经过内容安全检查
 
 interface:
   input:
@@ -94,24 +98,19 @@ interface:
       - name: knowledge_id
         type: number
         required: true
+      - name: complexity
+        type: string
+        required: false
   output:
     type: object
     fields:
       - name: resource_id
         type: string
-      - name: case_title
+      - name: code_content
         type: string
-      - name: case_overview
+      - name: code_comments
         type: string
-      - name: knowledge_points
-        type: array
-      - name: complete_code
+      - name: logic_explanation
         type: string
-      - name: run_instructions
-        type: string
-      - name: expected_output
-        type: string
-      - name: extension_exercises
-        type: array
       - name: knowledge_id
         type: number

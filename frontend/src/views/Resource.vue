@@ -89,7 +89,7 @@
                 </div>
                 <h3 class="font-medium text-gray-800 mb-2">知识点 {{ resource.knowledgeId }}</h3>
                 <p class="text-sm text-gray-600 mb-3 line-clamp-2">
-                  {{ resource.resourceContent.substring(0, 100) }}...
+                  {{ (resource.resourceContent || '').substring(0, 100) }}...
                 </p>
                 <div class="flex space-x-2">
                   <button class="text-sm text-blue-500 hover:text-blue-700">查看</button>

@@ -21,16 +21,14 @@ system_prompt: |
   2. 标准化的特征抽取结果
   3. 支持增量更新
   
-  绑定工具：
-  - 讯飞星火NLU - 自然语言理解
-  - MySQL读写 - 画像数据持久化
-  - 画像模块API - 对接现有功能
+  【重要】必须优先使用绑定的讯飞API完成任务，禁止调用其他非讯飞大模型！
 
 tools:
-  - name: spark_nlu
-    description: 讯飞星火大模型自然语言理解
+  - name: xfyun_spark_llm
+    description: 讯飞星火大模型V4.0（NLU能力）
     type: llm
     provider: xfyun
+    module_path: backend/app/services/xfyun_sdk/spark_sdk.py
   - name: mysql_read
     description: MySQL数据库读取工具
     type: database
@@ -45,11 +43,12 @@ tools:
     endpoint: /api/profile
 
 execution_rules:
-  - 每次对话必须进行特征抽取
+  - 每次对话必须调用讯飞星火大模型进行特征抽取
   - 特征抽取前先读取现有画像
   - 支持增量更新，不覆盖历史数据
-  - 所有特征抽取必须通过讯飞NLU工具
+  - 所有特征抽取必须通过讯飞星火大模型V4.0
   - 每次更新后同步到MySQL数据库
+  - 【异常处理规则】调用讯飞API失败时，自动重试3次，仍失败则向中枢调度智能体上报异常，返回友好提示给用户
 
 output_format:
   type: json
@@ -91,10 +90,11 @@ retry_policy:
   retry_on:
     - network_error
     - database_error
-    - nlu_error
+    - llm_error
+    - api_error
 
 compliance:
-  - 优先使用讯飞星火NLU
+  - 优先使用讯飞星火大模型V4.0（NLU能力）
   - 禁止使用非讯飞AI工具
   - 所有操作必须可追溯
 

@@ -5,50 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="59475fa2-7fc5-4505-91b8-c8dad9b312a3" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/01_student_profile_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/01_student_profile_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/02_course_doc_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/02_course_doc_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/03_structured_content_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/03_structured_content_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/04_question_bank_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/04_question_bank_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/05_practice_case_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/05_practice_case_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/06_extension_resource_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/06_extension_resource_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/07_multimodal_content_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/07_multimodal_content_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/08_learning_path_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/08_learning_path_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/09_intelligent_tutor_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/09_intelligent_tutor_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/10_evaluation_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/10_evaluation_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/11_content_safety_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/11_content_safety_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.trae/agents/12_orchestrator_agent.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.trae/agents/12_orchestrator_agent.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/profile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/core/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/core/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/core/database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/core/exceptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/core/exceptions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/core/response.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/core/response.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/core/security.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/core/security.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/crud/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/crud/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/models/course.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/models/course.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/schemas/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/schemas/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/schemas/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/schemas/profile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/schemas/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/schemas/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/services/xfyun_sdk/spark_sdk.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/services/xfyun_sdk/spark_sdk.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/create_user_store.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/generate_password.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/generate_password_hash.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/hash_password.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/services/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/services/request.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/request.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/types/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/types/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/utils/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/utils/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/Login.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/Profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/Profile.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/Resource.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/Resource.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/Tutor.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/Tutor.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +75,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1775718967595</updated>
-      <workItem from="1775718968732" duration="432000" />
+      <workItem from="1775718968732" duration="1056000" />
     </task>
     <servers />
   </component>
@@ -125,6 +83,6 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/project$main.coverage" NAME="main 覆盖结果" MODIFIED="1775719087956" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/project$main.coverage" NAME="main 覆盖结果" MODIFIED="1775725301124" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
   </component>
 </project>
